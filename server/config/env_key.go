@@ -1,5 +1,10 @@
 package config
 
+import (
+	"github.com/Selly-Modules/mongodb"
+	"go.elastic.co/apm/module/apmmongo"
+)
+
 type Config struct {
 	Port          string `env:"PORT"`
 	Elasticsearch struct {
@@ -27,4 +32,19 @@ type MongoCfg struct {
 	Source    string `env:"SOURCE"`
 	Username  string `env:"USERNAME"`
 	Password  string `env:"PWD"`
+}
+
+// GetConnectOptions ...
+func (dbCfg MongoCfg) GetConnectOptions() mongodb.Config {
+	return mongodb.Config{
+		Host:   dbCfg.Host,
+		DBName: dbCfg.DBName,
+		Standalone: &mongodb.ConnectStandaloneOpts{
+			AuthMechanism: dbCfg.Mechanism,
+			AuthSource:    dbCfg.Source,
+			Username:      dbCfg.Username,
+			Password:      dbCfg.Password,
+		},
+		Monitor: apmmongo.CommandMonitor(),
+	}
 }

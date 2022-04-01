@@ -25,7 +25,7 @@ func main() {
 	}))
 	e.Use(middleware.Recover())
 
-	initialize.StartServer()
+	initialize.StartServer(e)
 
 	e.Logger.Fatal(e.Start(config.GetEnv().Port))
 }

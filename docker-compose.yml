@@ -1,0 +1,46 @@
+version: "3.8"
+services:
+  search_demo:
+    container_name: "search_demo"
+    image: "trunglt251292/search-demo"
+    ports:
+      - "8098:8098"
+    env_file:
+      - "./.env"
+    depends_on:
+      - "nats"
+  nats:
+    container_name: nats
+    image: nats
+    ports:
+      - '4222:4222'
+    volumes:
+      - ./nats-server.conf:/nats-server.conf
+      - ./jetstream/nats:/jetstream
+    command: "--config /nats-server.conf --server_name nats"
+
+  search:
+    container_name: "search"
+    image: "trunglt251292/search"
+    ports:
+      - "7301:7300"
+      - "7081:6080"
+    environment:
+      - DOMAIN_API=localhost:7300
+      - ENV=develop
+      - ZOOKEEPER_URI=zookeeper:2181
+      - ZOOKEEPER_PREFIX_COMMON=/selly_search/develop/common
+      - ZOOKEEPER_PREFIX_SERVER=/selly_search/develop/server
+
+  zookeeper:
+    container_name: "zookeeper"
+    image: "zookeeper:3.6"
+    ports:
+      - "2182:2181"
+
+    # Redis
+  redis_search:
+    container_name: "redis_search"
+    image: "redis:5.0.7"
+    ports:
+      - "6381:6379"
